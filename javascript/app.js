@@ -15290,9 +15290,14 @@ const dictionary = [
   'rural',
   'shave'
 ];
-
+const WORD_LENGHT = 5;
 const dataKeys = document.querySelectorAll('[data-key]');
-const guessGrid = document.querySelector('[data-guess-grid]')
+const guessGrid = document.querySelector('[data-guess-grid]');
+const offsetFromDate = new Date(2022, 0, 1);
+const msOffset = Date.now() - offsetFromDate;
+const dateOffset = msOffset / 1000 / 60 / 60 / 24;
+const targetWord = targetWords[Math.floor(dateOffset)];
+console.log(targetWord);
 
 startInteraction();
 
@@ -15304,7 +15309,6 @@ function startInteraction() {
 }
 
 function handleMouseClick(e) {
-  console.log(e)
   if (e.target.matches('[data-key]')) {
     pressKey(e.target.dataset.key);
     return;
@@ -15330,7 +15334,6 @@ function stopInteraction(e) {
 }
 
 function handleKeyPress(e) {
-  console.log(e)
   if (e.key === 'Enter') {
     submitGuess();
     return;
@@ -15346,14 +15349,30 @@ function handleKeyPress(e) {
 }
 
 function pressKey(key) {
+  const activeTiles = getActiveTiles();
+  if (activeTiles.length >= WORD_LENGHT) return;
   const nextTile = guessGrid.querySelector(':not([data-letter])');
   nextTile.dataset.letter = key.toLowerCase();
   nextTile.textContent = key;
   nextTile.dataset.state = 'active';
 }
 
+function submitGuess() {
+  const activeTiles = [...getActiveTiles()];
+  if(activeTiles.length !== WORD_LENGHT) {
+    console.log('Not long enough');
+    return;
+  }
+}
+
+function getActiveTiles() {
+  const numberActives = guessGrid.querySelectorAll('[data-state="active"]');
+  return numberActives;
+}
+
 function deleteKey() {
   const nextTile = guessGrid.querySelectorAll('[data-letter]');
+  if(nextTile.length === 0) return;
   const positionDelete = nextTile.length - 1;
   nextTile[positionDelete].removeAttribute('data-letter');
   nextTile[positionDelete].textContent = '';
