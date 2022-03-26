@@ -15293,6 +15293,7 @@ const dictionary = [
 const WORD_LENGHT = 5;
 const dataKeys = document.querySelectorAll('[data-key]');
 const guessGrid = document.querySelector('[data-guess-grid]');
+const alertContainer = document.querySelector('[data-alert-container]');
 const offsetFromDate = new Date(2022, 0, 1);
 const msOffset = Date.now() - offsetFromDate;
 const dateOffset = msOffset / 1000 / 60 / 60 / 24;
@@ -15302,7 +15303,7 @@ console.log(targetWord);
 startInteraction();
 
 function startInteraction() {
-  dataKeys.forEach(key => {
+  dataKeys.forEach((key) => {
     key.addEventListener('click', handleMouseClick);
   });
   document.addEventListener('keydown', handleKeyPress);
@@ -15324,11 +15325,11 @@ function handleMouseClick(e) {
 }
 
 function stopInteraction(e) {
-  dataKeys.forEach(key => {
+  dataKeys.forEach((key) => {
     key.addEventListener('click', handleMouseClick);
   });
-  
-  dataKeys.forEach(key => {
+
+  dataKeys.forEach((key) => {
     key.addEventListener('keydown', handleKeyPress);
   });
 }
@@ -15359,8 +15360,9 @@ function pressKey(key) {
 
 function submitGuess() {
   const activeTiles = [...getActiveTiles()];
-  if(activeTiles.length !== WORD_LENGHT) {
-    console.log('Not long enough');
+  if (activeTiles.length !== WORD_LENGHT) {
+    showAlert('Not enough letters');
+    shakeTiles(activeTiles);
     return;
   }
 }
@@ -15372,9 +15374,35 @@ function getActiveTiles() {
 
 function deleteKey() {
   const nextTile = guessGrid.querySelectorAll('[data-letter]');
-  if(nextTile.length === 0) return;
+  if (nextTile.length === 0) return;
   const positionDelete = nextTile.length - 1;
   nextTile[positionDelete].removeAttribute('data-letter');
   nextTile[positionDelete].textContent = '';
   nextTile[positionDelete].removeAttribute('data-state');
+}
+
+function showAlert(message, duration = 1000) {
+  const alert = document.createElement('div');
+  alert.textContent = message;
+  alert.classList.add('alert');
+  alertContainer.prepend(alert);
+  if (duration == null) return;
+
+  setTimeout(() => {
+    alert.classList.add('hide');
+    alert.remove();
+  }, duration);
+}
+
+function shakeTiles(tiles) {
+  tiles.forEach((tile) => {
+    tile.classList.add('shake');
+    tile.addEventListener(
+      'animationend',
+      () => {
+        tile.classList.remove('shake');
+      },
+      { once: true }
+    );
+  });
 }
