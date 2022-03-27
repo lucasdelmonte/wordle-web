@@ -15462,6 +15462,12 @@ function checkWinLose(guess, array) {
     stopInteraction();
     return;
   }
+
+  const remainingTiles = guessGrid.querySelectorAll(':not([data-letter])');
+  if (remainingTiles.length === 0) {
+    showAlert(targetWord.toUpperCase(), null);
+    stopInteraction();
+  }
 }
 
 function danceTiels(tiles) {
