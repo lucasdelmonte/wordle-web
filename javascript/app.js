@@ -15292,7 +15292,9 @@ const dictionary = [
 ];
 
 const WORD_LENGHT = 5;
+const FLIP_ANIMATION_DURATION = 500;
 const guessGrid = document.querySelector('[data-guess-grid]');
+const keyboard = document.querySelector('[data-keyboard]');
 const alertContainer = document.querySelector('[data-alert-container]');
 const offsetFromDate = new Date(2022, 0, 1);
 const msOffset = Date.now() - offsetFromDate;
@@ -15313,7 +15315,6 @@ function handleMouseClick(e) {
     return;
   }
   if (e.target.matches('[data-enter]')) {
-    console.log('Click en el enter');
     submitGuess();
     return;
   }
@@ -15324,13 +15325,8 @@ function handleMouseClick(e) {
 }
 
 function stopInteraction(e) {
-  dataKeys.forEach((key) => {
-    key.addEventListener('click', handleMouseClick);
-  });
-
-  dataKeys.forEach((key) => {
-    key.addEventListener('keydown', handleKeyPress);
-  });
+  document.addEventListener('click', handleMouseClick);
+  document.addEventListener('keydown', handleKeyPress);
 }
 
 function handleKeyPress(e) {
@@ -15364,7 +15360,6 @@ function submitGuess() {
     shakeTiles(activeTiles);
     return;
   }
-  console.log(activeTiles)
 
   const guess = activeTiles.reduce((word, tile) => {
     return word + tile.dataset.letter;
@@ -15375,6 +15370,34 @@ function submitGuess() {
     shakeTiles(activeTiles);
     return;
   }
+
+  stopInteraction();
+  activeTiles.forEach((...params) => flipTile(...params, guess));
+}
+
+function flipTile(tile, index, array, guess) {
+  const letter = tile.dataset.letter;
+  console.log(letter)
+  const key = keyboard.querySelector(`[data-key='${letter}']`);
+  setTimeout(() => {
+    tile.classList.add('flip');
+  }, (index * FLIP_ANIMATION_DURATION) / 2);
+
+  tile.addEventListener('transitionend', () => {
+    tile.classList.remove('flip');
+    console.log(tile)
+    console.log(key)
+    if (targetWord[index] === letter) {
+      tile.dataset.state = 'correct';
+      key.classList.add('correct');
+    } else if (targetWord.includes(letter)) {
+      tile.dataset.state = 'wrong-location';
+      key.classList.add('wrong-location');
+    } else {
+      tile.dataset.state = 'wrong';
+      key.classList.add('wrong');
+    }
+  });
 }
 
 function getActiveTiles() {
