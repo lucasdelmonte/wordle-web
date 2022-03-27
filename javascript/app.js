@@ -15377,41 +15377,64 @@ function submitGuess() {
 
 function flipTile(tile, index, array, guess) {
   const letter = tile.dataset.letter;
-  console.log(letter)
   const key = keyboard.querySelector(`[data-key='${letter}']`);
   setTimeout(() => {
     tile.classList.add('flip');
   }, (index * FLIP_ANIMATION_DURATION) / 2);
 
-  tile.addEventListener('transitionend', () => {
-    tile.classList.remove('flip');
-    console.log(tile)
-    console.log(key)
-    if (targetWord[index] === letter) {
-      tile.dataset.state = 'correct';
-      key.classList.add('correct');
-    } else if (targetWord.includes(letter)) {
-      tile.dataset.state = 'wrong-location';
-      key.classList.add('wrong-location');
-    } else {
-      tile.dataset.state = 'wrong';
-      key.classList.add('wrong');
-    }
-  });
+  tile.addEventListener(
+    'transitionend',
+    () => {
+      tile.classList.remove('flip');
+      console.log(tile);
+      console.log(key);
+      if (targetWord[index] === letter) {
+        tile.dataset.state = 'correct';
+        key.classList.add('correct');
+      } else if (targetWord.includes(letter)) {
+        tile.dataset.state = 'wrong-location';
+        key.classList.add('wrong-location');
+      } else {
+        tile.dataset.state = 'wrong';
+        key.classList.add('wrong');
+      }
+
+      if (index === array.length - 1) {
+        tile.addEventListener(
+          'transitionend',
+          () => {
+            startInteraction();
+            checkWinLose(guess, array);
+          },
+          { once: true }
+        );
+      }
+    },
+    { once: true }
+  );
+}
+
+function checkWinLose(guess, array) {
+  if (guess === targetWord) {
+    showAlert('You Win', 5000);
+    danceTiles(tiles);
+    stopInteraction();
+    return;
+  }
 }
 
 function getActiveTiles() {
-  const numberActives = guessGrid.querySelectorAll('[data-state="active"]');
+  const numberActives = guessGrid.querySelectorAll('[data-state="active"i]');
   return numberActives;
 }
 
 function deleteKey() {
-  const nextTile = guessGrid.querySelectorAll('[data-letter]');
-  if (nextTile.length === 0) return;
-  const positionDelete = nextTile.length - 1;
-  nextTile[positionDelete].removeAttribute('data-letter');
-  nextTile[positionDelete].textContent = '';
-  nextTile[positionDelete].removeAttribute('data-state');
+  const activeTiles = getActiveTiles();
+  const lastTile = activeTiles[activeTiles.length - 1];
+  if (lastTile == null) return;
+  lastTile.textContent = '';
+  delete lastTile.dataset.state;
+  delete lastTile.dataset.letter;
 }
 
 function showAlert(message, duration = 1000) {
