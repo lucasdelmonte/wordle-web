@@ -15290,8 +15290,8 @@ const dictionary = [
   'rural',
   'shave'
 ];
+
 const WORD_LENGHT = 5;
-const dataKeys = document.querySelectorAll('[data-key]');
 const guessGrid = document.querySelector('[data-guess-grid]');
 const alertContainer = document.querySelector('[data-alert-container]');
 const offsetFromDate = new Date(2022, 0, 1);
@@ -15303,9 +15303,7 @@ console.log(targetWord);
 startInteraction();
 
 function startInteraction() {
-  dataKeys.forEach((key) => {
-    key.addEventListener('click', handleMouseClick);
-  });
+  document.addEventListener('click', handleMouseClick);
   document.addEventListener('keydown', handleKeyPress);
 }
 
@@ -15315,6 +15313,7 @@ function handleMouseClick(e) {
     return;
   }
   if (e.target.matches('[data-enter]')) {
+    console.log('Click en el enter');
     submitGuess();
     return;
   }
@@ -15362,6 +15361,17 @@ function submitGuess() {
   const activeTiles = [...getActiveTiles()];
   if (activeTiles.length !== WORD_LENGHT) {
     showAlert('Not enough letters');
+    shakeTiles(activeTiles);
+    return;
+  }
+  console.log(activeTiles)
+
+  const guess = activeTiles.reduce((word, tile) => {
+    return word + tile.dataset.letter;
+  }, '');
+
+  if (!dictionary.includes(guess)) {
+    showAlert('Not in word list');
     shakeTiles(activeTiles);
     return;
   }
